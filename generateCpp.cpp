@@ -1576,8 +1576,11 @@ status_t AST::generateStubSource(
 
         out.indent();
 
-        status_t err =
-            generateStubSourceForMethod(out, superInterface, method);
+        out << "bool _hidl_is_oneway = _hidl_flags & ::android::hardware::IBinder::FLAG_ONEWAY;\n";
+        out << "if (_hidl_is_oneway != " << (method->isOneway() ? "true" : "false") << ") ";
+        out.block([&] { out << "return ::android::UNKNOWN_ERROR;\n"; }).endl().endl();
+
+        status_t err = generateStubSourceForMethod(out, superInterface, method);
 
         if (err != OK) {
             return err;
